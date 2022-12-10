@@ -1,0 +1,11 @@
+
+//@# Unsupported server version (should fail)
+||An open session is required to perform this operation. (RuntimeError)
+||An open session is required to perform this operation. (RuntimeError)
+||An open session is required to perform this operation. (RuntimeError)
+||Unsupported server version: This AdminAPI operation requires MySQL version 8.0 or newer, but target is 5.7.[[*]] (RuntimeError)
+||Unsupported server version: This AdminAPI operation requires MySQL version 8.0 or newer, but target is 5.7.[[*]] (RuntimeError)
+||Unsupported server version: This AdminAPI operation requires MySQL version 8.0 or newer, but target is 5.7.[[*]] (RuntimeError)
+||An open session is required to perform this operation. (RuntimeError)
+||An open session is required to perform this operation. (RuntimeError)
+||An open session is required to perform this operation. (RuntimeError)

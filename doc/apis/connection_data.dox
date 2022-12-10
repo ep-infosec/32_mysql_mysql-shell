@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2.0,
+ * as published by the Free Software Foundation.
+ *
+ * This program is also distributed with certain software (including
+ * but not limited to OpenSSL) that is licensed under separate terms, as
+ * designated in a particular file or component or in included license
+ * documentation.  The authors of MySQL hereby grant you an additional
+ * permission to link the program and your derivative works with the
+ * separately licensed software that they have included with MySQL.
+ * This program is distributed in the hope that it will be useful,  but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+ * the GNU General Public License, version 2.0, for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+/*!
+\page connection_data Connection Data
+# Connection Data
+
+On the API exposed on the MySQL Shell, several functions require some connection data to be provided.
+
+\copydoc connection_options
+
+$(TOPIC_CONNECTION_TYPES)
+
+$(TOPIC_CONNECTION_OPTION_SSL_MODE)
+
+$(TOPIC_CONNECTION_OPTION_SSL_MODE1)
+$(TOPIC_CONNECTION_OPTION_SSL_MODE2)
+$(TOPIC_CONNECTION_OPTION_SSL_MODE3)
+$(TOPIC_CONNECTION_OPTION_SSL_MODE4)
+$(TOPIC_CONNECTION_OPTION_SSL_MODE5)
+$(TOPIC_CONNECTION_OPTION_SSL_MODE6)
+
+$(TOPIC_CONNECTION_OPTION_TLS_VERSION)
+
+$(TOPIC_CONNECTION_OPTION_TLS_VERSION1)
+$(TOPIC_CONNECTION_OPTION_TLS_VERSION2)
+$(TOPIC_CONNECTION_OPTION_TLS_VERSION3)
+$(TOPIC_CONNECTION_OPTION_TLS_VERSION4)
+
+$(TOPIC_CONNECTION_OPTION_AUTH_METHOD)
+
+$(TOPIC_CONNECTION_OPTION_AUTH_METHOD1)
+$(TOPIC_CONNECTION_OPTION_AUTH_METHOD2)
+$(TOPIC_CONNECTION_OPTION_AUTH_METHOD3)
+$(TOPIC_CONNECTION_OPTION_AUTH_METHOD4)
+$(TOPIC_CONNECTION_OPTION_AUTH_METHOD5)
+$(TOPIC_CONNECTION_OPTION_AUTH_METHOD6)
+$(TOPIC_CONNECTION_OPTION_AUTH_METHOD7)
+$(TOPIC_CONNECTION_OPTION_AUTH_METHOD8)
+
+$(TOPIC_CONNECTION_COMPRESSION)
+
+$(TOPIC_CONNECTION_ATTRIBUTES)
+
+$(TOPIC_URI_ENCODED_VALUE)
+
+$(TOPIC_URI_ENCODED_VALUE1)
+
+$(TOPIC_URI_ENCODED_VALUE2)
+
+$(TOPIC_URI_ENCODED_VALUE3)
+
+$(TOPIC_URI_ENCODED_VALUE4)
+
+$(TOPIC_URI_ENCODED_VALUE5)
+
+$(TOPIC_URI_ENCODED_VALUE6)
+*/

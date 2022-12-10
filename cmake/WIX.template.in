@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2016, 2021, Oracle and/or its affiliates.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License, version 2.0,
+  as published by the Free Software Foundation.
+
+  This program is also distributed with certain software (including
+  but not limited to OpenSSL) that is licensed under separate terms, as
+  designated in a particular file or component or in included license
+  documentation.  The authors of MySQL hereby grant you an additional
+  permission to link the program and your derivative works with the
+  separately licensed software that they have included with MySQL.
+  This program is distributed in the hope that it will be useful,  but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+  the GNU General Public License, version 2.0, for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+-->
+
+<?include "cpack_variables.wxi"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+    RequiredVersion="3.6.3303.0">
+
+    <Product Id="$(var.CPACK_WIX_PRODUCT_GUID)"
+        Name="$(var.CPACK_PACKAGE_NAME)"
+        Language="1033"
+        Version="$(var.CPACK_PACKAGE_VERSION)"
+        Manufacturer="$(var.CPACK_PACKAGE_VENDOR)"
+        UpgradeCode="$(var.CPACK_WIX_UPGRADE_GUID)">
+
+        <Package InstallerVersion="301" Compressed="yes"/>
+
+        <Media Id="1" Cabinet="media1.cab" EmbedCab="yes"/>
+
+        <MajorUpgrade
+            Schedule="afterInstallInitialize"
+            AllowSameVersionUpgrades="yes"
+            DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit."/>
+
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.CPACK_WIX_LICENSE_RTF)"/>
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_ROOT"/>
+
+        <?ifdef CPACK_WIX_PRODUCT_ICON?>
+        <Property Id="ARPPRODUCTICON">ProductIcon.ico</Property>
+        <Icon Id="ProductIcon.ico" SourceFile="$(var.CPACK_WIX_PRODUCT_ICON)"/>
+        <?endif?>
+
+        <?ifdef CPACK_WIX_UI_BANNER?>
+        <WixVariable Id="WixUIBannerBmp" Value="$(var.CPACK_WIX_UI_BANNER)"/>
+        <?endif?>
+
+        <?ifdef CPACK_WIX_UI_DIALOG?>
+        <WixVariable Id="WixUIDialogBmp" Value="$(var.CPACK_WIX_UI_DIALOG)"/>
+        <?endif?>
+
+        <FeatureRef Id="ProductFeature">
+            <Component Id="UpdatePath" Directory="CM_DP_main.bin" Guid="0D572FF7-1AE6-493D-8991-D2DC99E1F5C1">
+                <CreateFolder/>
+                <Environment Id="UpdatePathEnv" Action="set" Part="first" Name="PATH" Value="[CM_DP_main.bin]"/>
+                <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\mysqlsh">
+                    <RegistryValue Type="expandable" Name="EventMessageFile" Value="[CM_DP_main.bin]\mysqlsh.exe">
+                        <!-- Give full access to the authenticated users, system and built-in administrators -->
+                        <PermissionEx Sddl="D:(A;;KA;;;AU)(A;;KA;;;SY)(A;;KA;;;BA)" />
+                    </RegistryValue>
+                    <!-- EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE == 7 -->
+                    <RegistryValue Type="integer" Name="TypesSupported" Value="7" />
+                </RegistryKey>
+            </Component>
+        </FeatureRef>
+
+        <UI>
+            <UIRef Id="WixUI_InstallDir" />
+            <Publish Dialog="ExitDialog"
+                Control="Finish"
+                Event="DoAction"
+                Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+        </UI>
+        <?if "1" = "@CPACK_WIX_VS_REDIST_CHECK@" ?>
+        <Property Id="VS14REDIST">
+            <RegistrySearch Id="FindRedistVS14"
+                Root="HKLM"
+                Key="SOFTWARE\Microsoft\DevDiv\vc\Servicing\14.0\RuntimeMinimum"
+                Name="Version"
+                Type="raw" />
+        </Property>
+        <Condition Message="This application requires Visual Studio @CPACK_WIX_REDIST_YEAR@ Redistributable. Please install the Redistributable then run this installer again.">
+            <!-- This is a string-based comparison, but we should be OK, given the versioning scheme used, since we only care about major.minor part. -->
+            <![CDATA[Installed OR VS14REDIST >= "@CPACK_WIX_REDIST_VERSION@"]]>
+        </Condition>
+        <?endif?>
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch MySQL Shell" />
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+        <Property Id="WixShellExecTarget" Value="[#mysqlsh.exe]" />
+        <CustomAction Id="LaunchApplication" Directory="CM_DP_main.bin" ExeCommand="[SystemFolder]cmd.exe /C mysqlsh.exe" Return="asyncNoWait"/>
+        <?if "1" = "@CPACK_WIX_WITH_PYTHON@" ?>
+        <SetProperty
+            Id="CleanupPycPython"
+            Value="&quot;[SystemFolder]cmd.exe&quot; /c del /s /q /f &quot;[CM_DP_main.lib]*.pyc&quot; &quot;[CM_DP_main.lib]*.pyo&quot;"
+            Before="CleanupPycPython"
+            Sequence="execute" />
+        <CustomAction
+            Id="CleanupPycPython"
+            BinaryKey="WixCA"
+            DllEntry="CAQuietExec"
+            Execute="deferred"
+            Return="ignore"
+            HideTarget="no"
+            Impersonate="no" />
+        <SetProperty
+            Id="CleanupCachePython"
+            Value="&quot;[SystemFolder]cmd.exe&quot; /c FOR /d /r &quot;[CM_DP_main.lib]&quot; %d IN (&quot;__pycache__&quot;) DO @IF EXIST &quot;%d&quot; rd /s /q &quot;%d&quot;"
+            Before="CleanupCachePython"
+            Sequence="execute" />
+        <CustomAction
+            Id="CleanupCachePython"
+            BinaryKey="WixCA"
+            DllEntry="CAQuietExec"
+            Execute="deferred"
+            Return="ignore"
+            HideTarget="no"
+            Impersonate="no" />
+        <?endif?>
+
+        <InstallExecuteSequence>
+            <?if "1" = "@CPACK_WIX_WITH_PYTHON@" ?>
+            <Custom Action="CleanupPycPython" Before="CleanupCachePython">
+                REMOVE="ALL"
+            </Custom>
+            <Custom Action="CleanupCachePython" Before="RemoveFiles">
+                REMOVE="ALL"
+            </Custom>
+            <?endif?>
+        </InstallExecuteSequence>
+    </Product>
+</Wix>

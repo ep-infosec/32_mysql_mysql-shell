@@ -1,0 +1,10 @@
+|name: Armand|
+|age: 50|
+|name: Alfred|
+|age: 39|
+|name: Jack|
+|age: 17|
+|name: Rafa|
+|age: 38|
+testSession.close();||
+testSession=null;||

@@ -1,0 +1,72 @@
+#!/usr/bin/make -f
+# Copyright (c) 2016, 2020, Oracle and/or its affiliates.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2.0,
+# as published by the Free Software Foundation.
+#
+# This program is also distributed with certain software (including
+# but not limited to OpenSSL) that is licensed under separate terms, as
+# designated in a particular file or component or in included license
+# documentation.  The authors of MySQL hereby grant you an additional
+# permission to link the program and your derivative works with the
+# separately licensed software that they have included with MySQL.
+# This program is distributed in the hope that it will be useful,  but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+# the GNU General Public License, version 2.0, for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
+upstream_version := $(shell dpkg-parsechangelog | sed -n -e'/^Version: / { s/Version: //; s/-[^-]\+$$//; p }')
+base_version = $(shell echo $(upstream_version) | sed -e's/r[0-9]\+$$//')
+
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+%:
+	#dh $@ --with autoreconf
+	dh  $@
+# FIXME -DLIB_SUFFIX=64 ???
+
+override_dh_auto_configure:
+	cmake -G 'Unix Makefiles' \
+	    -DCMAKE_INSTALL_PREFIX=/usr \
+	    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+	    -DEXTRA_INSTALL="@EXTRA_INSTALL@" \
+	    -DEXTRA_NAME_SUFFIX="@PRODUCT_SUFFIX@" \
+	    -DUSE_LD_LLD=OFF \
+	    @EXTRA_CMAKE_OPTS@ \
+	    .
+	DEB_BUILD_HARDENING=1 make -j8 VERBOSE=1
+
+# Do nothing; the test suite requires a sql server, so we can't run it
+# as part of the build.
+override_dh_auto_test:
+
+# we should never need to run this for our plugin package; running it creates
+# a spurious shlibs file that shouldn't be there.
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+
+TMP_INSTDIR = $(CURDIR)/debian/tmp
+
+BINDIR             = /usr/bin
+PRIVATE_BINDIR     = /usr/lib/mysqlsh
+TMP_BINDIR         = $(TMP_INSTDIR)$(BINDIR)
+TMP_PRIVATE_BINDIR = $(TMP_INSTDIR)$(PRIVATE_BINDIR)
+
+override_dh_auto_clean:
+
+override_dh_auto_install:
+	dh_auto_install -- libdir=$(PRIVATE_BINDIR) DESTDIR=$(TMP_INSTDIR)
+	# FIXME at this moment only headers are installed but no
+	# "mysqlshdk" library. It is also unclear if eventually we
+	# want the lib and headers, in that case likely in a separate
+	# package. Using a work-around removing all the "dev" files
+	-rm -fr debian/tmp/usr/include 2>/dev/null
+	-rm -fr debian/tmp/usr/lib*/*.{so*,a} 2>/dev/null
+
+override_dh_install:
+	dh_install --fail-missing
